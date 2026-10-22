@@ -69,11 +69,10 @@ logic_puzzles_starter/
 ### Bước 1: Clone repository
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/tiennd2k5/logic_puzzles_starter.git
 cd logic_puzzles_starter
 ```
 
-Thay `<YOUR_REPOSITORY_URL>` bằng đường dẫn Git thực tế của nhóm.
 
 ### Bước 2: Tạo môi trường ảo (khuyến nghị)
 
