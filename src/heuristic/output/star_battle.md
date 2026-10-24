@@ -1,0 +1,29 @@
+| De | Kich thuoc | Mo rong | Thoi gian (s) | Ket qua |
+|---|---|---:|---:|---|
+| `normal_1star_5x5` | 5x5 | 9 | 0.00 | xong |
+| `sb-5x5-normal-01` | 5x5 | 16 | 0.00 | xong |
+| `sb-5x5-normal-02` | 5x5 | 36 | 0.00 | xong |
+| `sb-5x5-normal-sample` | 5x5 | 13 | 0.00 | xong |
+| `sb-6x6-normal-01` | 6x6 | 111 | 0.00 | xong |
+| `sb-6x6-normal-02` | 6x6 | 7 | 0.00 | xong |
+| `sb-6x6-shapeless-sample` | 6x6 | 16 | 0.00 | xong |
+| `shapeless_1star_6x6` | 6x6 | 48 | 0.00 | xong |
+| `sb-6x6-hard-01` | 6x6 | 9 | 0.00 | xong |
+| `sb-6x6-hard-02` | 6x6 | 17 | 0.00 | xong |
+| `sb-8x8-normal-01` | 8x8 | 2460 | 0.16 | xong |
+| `sb-8x8-normal-02` | 8x8 | 2912 | 0.16 | xong |
+| `sb-8x8-hard-01` | 8x8 | 296 | 0.02 | xong |
+| `sb-8x8-hard-02` | 8x8 | 805 | 0.04 | xong |
+| `normal_2star_10x10` | 10x10 | 2484 | 0.50 | xong |
+| `sb-10x10-normal-01` | 10x10 | 8360 | 1.64 | xong |
+| `sb-10x10-normal-02` | 10x10 | 5284 | 1.06 | xong |
+| `shapeless_2star_10x10` | 10x10 | 465 | 0.09 | xong |
+| `sb-10x10-hard-01` | 10x10 | 9069 | 2.38 | xong |
+| `sb-10x10-hard-02` | 10x10 | 304 | 0.10 | xong |
+| `sb-14x14-normal-01` | 14x14 | -1 | 60.00 | timeout |
+| `sb-14x14-normal-02` | 14x14 | -1 | 60.00 | timeout |
+| `sb-14x14-hard-01` | 14x14 | -1 | 60.00 | timeout |
+| `sb-14x14-hard-02` | 14x14 | -1 | 60.01 | timeout |
+| `sb-17x17-daily-01` | 17x17 | -1 | 60.00 | timeout |
+| `sb-21x21-weekly-01` | 21x21 | -1 | 60.00 | timeout |
+| `sb-25x25-monthly-01` | 25x25 | -1 | 60.01 | timeout |
