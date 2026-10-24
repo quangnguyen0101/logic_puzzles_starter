@@ -1,0 +1,28 @@
+{
+  "name": "sb-6x6-shapeless-sample",
+  "type": "star_battle",
+  "variant": "shapeless",
+  "rows": 6,
+  "cols": 6,
+  "stars_per_unit": 1,
+  "blocked_cells": [
+    [0, 1],
+    [1, 0],
+    [2, 1],
+    [2, 2],
+    [3, 0],
+    [3, 1],
+    [3, 2],
+    [3, 3],
+    [3, 4],
+    [5, 1]
+  ],
+  "known_solution": [
+    [0, 2],
+    [1, 4],
+    [2, 0],
+    [3, 5],
+    [4, 1],
+    [5, 3]
+  ]
+}
