@@ -1,10 +1,9 @@
-"""Ve hinh puzzle tu file JSON trong data/ (dung cho bao cao).
+"""Phan ve hinh dung chung cho viz_puzzle.py va viz_solution.py.
 
-    python3 tools/viz.py data/star_battle/sb-5x5-normal-01.json
-    python3 tools/viz.py data/light_up/lu-7x7-normal-01.json -o hinh.png
-    python3 tools/viz.py data/star_battle -o figs
-    python3 tools/viz.py data/light_up/lu-30x40-weekly-01.json -o hinh.svg --dpi 300
-    python3 tools/viz.py --selftest
+Hai file CLI chi goi `main(argv, with_solution=...)`:
+
+    viz_puzzle.py    -> ve de bai (khong co loi giai)
+    viz_solution.py  -> ve de bai kem loi giai (known_solution)
 
 Chi can matplotlib de ve; phan mo hinh va test khong phu thuoc vao file nay.
 """
@@ -16,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from src.light_up import LightUpProblem
@@ -128,33 +127,41 @@ def draw(problem, solution=None, path: str | Path = "out.png", dpi: int = 150):
     return Path(path)
 
 
-def _selftest() -> int:
+def _problem_class(kind: str):
+    return LightUpProblem if kind == "light_up" else StarBattleProblem
+
+
+def _selftest(with_solution: bool) -> int:
     import tempfile
 
     from PIL import Image
 
     problem = LightUpProblem.from_json(ROOT / "data/light_up/lu-7x7-normal-sample.json")
-    out = Path(tempfile.gettempdir()) / "viz-selftest.png"
-    draw(problem, problem.known_solution, out, dpi=60)
+    out = Path(tempfile.gettempdir()) / f"viz-selftest-{int(with_solution)}.png"
+    draw(problem, problem.known_solution if with_solution else None, out, dpi=60)
     im = Image.open(out).convert("RGB")
     raw = im.tobytes()
     px = [raw[i:i + 3] for i in range(0, len(raw), 3)]
     assert len(set(px)) > 10, "anh chi co mot mau"
-    assert any(c[0] > 200 and c[1] > 150 and c[2] < 120 for c in px), "khong thay bong den"
+    has_bulb = any(c[0] > 200 and c[1] > 150 and c[2] < 120 for c in px)
+    if with_solution:
+        assert has_bulb, "khong thay bong den"
+    else:
+        assert not has_bulb, "de bai khong duoc co bong den"
     print("OK", out, im.size)
     return 0
 
 
-def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description="Ve puzzle tu file JSON")
+def main(argv: list[str], with_solution: bool) -> int:
+    label = "loi giai" if with_solution else "de bai"
+    ap = argparse.ArgumentParser(description=f"Ve {label} tu file JSON")
     ap.add_argument("input", nargs="?", help="file .json hoac thu muc chua cac file .json")
     ap.add_argument("--selftest", action="store_true", help="tu kiem tra roi thoat")
-    ap.add_argument("-o", "--out", help="file anh ra (.png/.svg/.pdf); mac dinh ten file input")
-    ap.add_argument("--no-sol", action="store_true", help="khong ve known_solution")
+    ap.add_argument("-o", "--out", help="file anh ra, hoac thu muc (mac dinh figs/<kind>/<loai>)")
     ap.add_argument("--dpi", type=int, default=150)
     args = ap.parse_args(argv)
     if args.selftest:
-        return _selftest()
+        return _selftest(with_solution)
     if not args.input:
         ap.error("thieu file hoac thu muc input")
 
@@ -164,21 +171,23 @@ def main(argv: list[str]) -> int:
         print(f"khong co file .json trong {src}")
         return 1
 
-    if len(files) == 1 and args.out:
-        outs = [args.out]
-    else:
-        out_dir = Path(args.out) if args.out else Path("figs")
-        out_dir.mkdir(parents=True, exist_ok=True)
-        outs = [out_dir / f"{f.stem}.png" for f in files]
-
-    for f, out in zip(files, outs):
+    sub = "solution" if with_solution else "puzzle"
+    drawn = skipped = 0
+    for f in files:
         kind = json.loads(f.read_text(encoding="utf-8"))["type"]
-        cls = LightUpProblem if kind == "light_up" else StarBattleProblem
-        problem = cls.from_json(f)
-        sol = None if args.no_sol else problem.known_solution
-        print("ve", draw(problem, sol, out, args.dpi))
+        problem = _problem_class(kind).from_json(f)
+        solution = problem.known_solution if with_solution else None
+        if with_solution and not solution:
+            skipped += 1
+            continue
+        if len(files) == 1 and args.out:
+            out = Path(args.out)
+        else:
+            out_dir = Path(args.out) if args.out else ROOT / "figs" / kind / sub
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out = out_dir / f"{f.stem}.png"
+        print("ve", draw(problem, solution, out, args.dpi))
+        drawn += 1
+    if skipped:
+        print(f"bo qua {skipped} de chua co known_solution")
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
