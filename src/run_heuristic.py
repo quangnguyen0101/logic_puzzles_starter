@@ -1,11 +1,10 @@
 """Chay heuristic tren bo de trong data/, in mot dong cho moi de khi xong.
 
-    python3 tools/run_heuristic.py --timeout 60
-    python3 tools/run_heuristic.py --kind light_up --timeout 30
-    python3 tools/run_heuristic.py --out kq-star-battle.md
+    python3 -m src.run_heuristic --timeout 60
+    python3 -m src.run_heuristic --kind light_up --timeout 30
+    python3 -m src.run_heuristic --out-dir /tmp/kq
 
-Moi de chay toi da `timeout` giay hoac `cap` nut mo rong, cai nao toi truoc thi
-dung va ghi `timeout`.
+Moi de chay toi da `timeout` giay; qua han thi dung va ghi `timeout`.
 """
 
 from __future__ import annotations
@@ -18,12 +17,13 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.heuristic.heuristic_light_up import heuristic_light_up
-from src.heuristic.heuristic_star_battle import heuristic_star_battle
+from src.heuristic_light_up import heuristic_light_up
+from src.heuristic_star_battle import heuristic_star_battle
 from src.light_up import LightUpProblem
+from src.solver import solve
 from src.star_battle import StarBattleProblem
 
 RUNNERS = {
@@ -95,15 +95,15 @@ def _order(path: Path) -> tuple[int, int, str]:
     return (data["rows"], level, path.stem)
 
 
-def run(kind: str, path: Path, timeout: float, cap: int) -> dict:
+def run(kind: str, path: Path, timeout: float) -> dict:
     cls, fn = RUNNERS[kind]
     problem = cls.from_json(path)
     old = signal.signal(signal.SIGALRM, _alarm)
     signal.setitimer(signal.ITIMER_REAL, timeout)
     started = time.perf_counter()
     try:
-        result = fn(problem, max_expanded=cap)
-        status = "xong" if result["solution"] is not None else "het nut"
+        result = solve(problem, fn)
+        status = "xong" if result["solution"] is not None else "khong co loi giai"
     except _Timeout:
         result, status = {"expanded": -1, "solution": None}, "timeout"
     finally:
@@ -124,11 +124,10 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--data", default="data")
     ap.add_argument("--kind", choices=sorted(RUNNERS), help="chi chay mot bai")
     ap.add_argument("--timeout", type=float, default=60.0, help="giay toi da moi de")
-    ap.add_argument("--cap", type=int, default=300_000, help="so nut mo rong toi da")
     ap.add_argument(
         "--out-dir",
-        default=str(ROOT / "src" / "heuristic" / "output"),
-        help="thu muc ghi ket qua (mac dinh src/heuristic/output)",
+        default=str(ROOT / "data" / "heuristic_output"),
+        help="thu muc ghi ket qua (mac dinh data/heuristic_output)",
     )
     args = ap.parse_args(argv)
 
@@ -142,7 +141,7 @@ def main(argv: list[str]) -> int:
         out_kind = out_dir / kind
         out_kind.mkdir(parents=True, exist_ok=True)
         for path in files:
-            row = run(kind, path, args.timeout, args.cap)
+            row = run(kind, path, args.timeout)
             rows.append(row)
             raw = path.read_text(encoding="utf-8")
             if row["solution"]:

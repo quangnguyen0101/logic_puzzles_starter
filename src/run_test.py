@@ -1,11 +1,11 @@
-"""Kiem tra moi loi giai trong `output/` co thoả yeu cau de bai khong.
+"""Kiem tra moi loi giai trong `data/heuristic_output/` co thoa yeu cau de bai khong.
 
-    python3 src/heuristic/test_heuristic.py
-    python3 src/heuristic/test_heuristic.py --kind light_up
-    python3 src/heuristic/test_heuristic.py --dir src/heuristic/output
+    python3 -m src.run_test
+    python3 -m src.run_test --kind light_up
+    python3 -m src.run_test --dir data/heuristic_output
 
 Doc tung file JSON (dinh dang giong `data/`, kem `known_solution`), chay ham
-kiem tra tuong ung trong test_heuristic_light_up / test_heuristic_star_battle,
+kiem tra tuong ung trong check_light_up / check_star_battle,
 in bang "de | ket qua | ly do". Thoat voi ma 1 neu co loi giai khong hop le.
 """
 
@@ -16,22 +16,23 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.heuristic import test_heuristic_light_up, test_heuristic_star_battle
+from src.check_light_up import check as check_light_up
+from src.check_star_battle import check as check_star_battle
 from src.light_up import LightUpProblem
 from src.star_battle import StarBattleProblem
 
 CHECKS = {
-    "light_up": (LightUpProblem, test_heuristic_light_up.check),
-    "star_battle": (StarBattleProblem, test_heuristic_star_battle.check),
+    "light_up": (LightUpProblem, check_light_up),
+    "star_battle": (StarBattleProblem, check_star_battle),
 }
 
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description="Kiem tra loi giai trong output/")
-    ap.add_argument("--dir", default=str(ROOT / "src" / "heuristic" / "output"))
+    ap.add_argument("--dir", default=str(ROOT / "data" / "heuristic_output"))
     ap.add_argument("--kind", choices=sorted(CHECKS), help="chi kiem tra mot bai")
     args = ap.parse_args(argv)
 

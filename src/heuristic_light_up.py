@@ -19,7 +19,7 @@ con it nhat h(n) bong phai dat -> chan duoi hop le.
 
     from src.light_up import LightUpProblem
     from src.solver import solve
-    from src.heuristic.heuristic_light_up import heuristic_light_up
+    from src.heuristic_light_up import heuristic_light_up
 
     problem = LightUpProblem.from_json("data/light_up/lu-7x7-normal-01.json")
     result = solve(problem, heuristic_light_up)
@@ -28,6 +28,11 @@ con it nhat h(n) bong phai dat -> chan duoi hop le.
 from __future__ import annotations
 
 import heapq
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from src.light_up import LightUpProblem
 
@@ -124,7 +129,7 @@ def _propagate(problem, segments, whites, state):
             return state, False
 
 
-def heuristic_light_up(problem: LightUpProblem, *, max_expanded: int | None = None):
+def heuristic_light_up(problem: LightUpProblem):
     whites = {
         (r, c)
         for r in range(problem.rows)
@@ -149,11 +154,6 @@ def heuristic_light_up(problem: LightUpProblem, *, max_expanded: int | None = No
     peak = 1
 
     while heap:
-        if max_expanded is not None and expanded >= max_expanded:
-            return {
-                "solution": None, "expanded": expanded, "steps": [],
-                "generated": generated, "frontier_peak": peak, "timeout": True,
-            }
         _, g, _, state = heapq.heappop(heap)
         expanded += 1
 
@@ -191,3 +191,28 @@ def heuristic_light_up(problem: LightUpProblem, *, max_expanded: int | None = No
         "solution": None, "expanded": expanded, "steps": [],
         "generated": generated, "frontier_peak": peak,
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    from src.solver import solve
+
+    ap = argparse.ArgumentParser(description="Giai Light Up bang A*")
+    ap.add_argument("input", help="file JSON cua de bai")
+    args = ap.parse_args(argv)
+
+    problem = LightUpProblem.from_json(args.input)
+    result = solve(problem, heuristic_light_up)
+    print(f"{problem.name}: {problem.rows}x{problem.cols}, mo rong {result['expanded']} nut")
+    if not result["solution"]:
+        print("khong tim thay loi giai")
+        return 1
+    state = problem.state_from_coords(result["solution"])
+    print(problem.render(state))
+    print("is_goal:", problem.is_goal(state))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
